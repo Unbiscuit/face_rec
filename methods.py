@@ -1,10 +1,10 @@
-def hog():
+def hog(number_of_ets=9):
     import numpy as np
     import pgm_to_matrix
     import glob
     preimages = pgm_to_matrix.convert("Check_list")
     images = np.zeros((len(glob.glob('/home/uncookie/PycharmProjects/face_rec/Check_list/*')), 255))
-    hist_compare_images = np.zeros((400, 255))
+    hist_compare_images = np.zeros((40*number_of_ets, 255))
     cross = 0
     for i in range(len(preimages)):
         for j in range(112):
@@ -16,7 +16,7 @@ def hog():
             for r in range(112):
                 for k in range(92):
                     hist_compare_images[m + cross][compare_images[m][r, k] - 1] += 1
-        cross += 10
+        cross += number_of_ets
 
     answers = []
     for i in range(len(preimages)):
@@ -24,7 +24,7 @@ def hog():
         cross = 0
         for k in range(len(hist_compare_images)):
             distances[0][cross] += np.sqrt(np.sum(np.square(np.array(images[i])/255 - np.array(hist_compare_images[k])/255)))
-            if (k + 1) % 10 == 0:
+            if (k + 1) % number_of_ets == 0:
                 cross += 1
         answers.append(np.unravel_index(np.argmin(distances, axis=None), distances.shape)[1] + 1)
     return answers, images[0]
@@ -46,13 +46,13 @@ def answers_for_methods():
     return opened
 
 
-def random():
+def random(used_dots=400, number_of_ets=9):
     import numpy as np
     import pgm_to_matrix
     import random
     preimages = pgm_to_matrix.convert("Check_list")
     dots = []
-    amount_of_dots = 300
+    amount_of_dots = used_dots
     vec_compare_images = []
     for i in range(amount_of_dots):
         dots.append([random.randrange(112), random.randrange(92)])
@@ -75,19 +75,19 @@ def random():
         cross = 0
         for j in range(len(vec_compare_images)):
             distances[0][cross] += np.sqrt(np.sum(np.square(np.array(images[i]) / 255 - np.array(vec_compare_images[j]) / 255)))
-            if (j + 1) % 9 == 0:
+            if (j + 1) % number_of_ets == 0:
                 cross += 1
         answers.append(np.unravel_index(np.argmin(distances, axis=None), distances.shape)[1] + 1)
     return answers, dots
 
 
-def scale():
+def scale(percent=14, reference = 9):
     import numpy as np
     import pgm_to_matrix
     import cv2
     preimages = pgm_to_matrix.convert("Check_list")
     scaled_compare_images = []
-    scale_percent = 25
+    scale_percent = percent
     thing = preimages[0]
     width = int(thing.shape[1] * scale_percent / 100)
     height = int(thing.shape[0] * scale_percent / 100)
@@ -104,7 +104,7 @@ def scale():
         cross = 0
         for j in range(len(scaled_compare_images)):
             distances[0][cross] += np.sqrt(np.sum(np.square(np.array(preimages[i]) / 255 - np.array(scaled_compare_images[j]) / 255)))
-            if (j + 1) % 9 == 0:
+            if (j + 1) % reference == 0:
                 cross += 1
         answers.append(np.unravel_index(np.argmin(distances, axis=None), distances.shape)[1] + 1)
     return answers, preimages[0]
